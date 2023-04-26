@@ -37,10 +37,11 @@ class Warm extends Component
             }
         }
         
-        // check if commerce is installed
-        foreach (Product::find()->collect() as $element) {
-            if ($element->url && !ElementHelper::isDraftOrRevision($element)) {
-                $urls[] = $element->url;
+        if (Craft::$app->getPlugins()->isPluginEnabled('commerce')) {
+            foreach (Product::find()->collect() as $element) {
+                if ($element->url && !ElementHelper::isDraftOrRevision($element)) {
+                    $urls[] = $element->url;
+                }
             }
         }
         
