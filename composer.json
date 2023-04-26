@@ -1,0 +1,40 @@
+{
+    "name": "webdna/warmie",
+    "description": "Check site pages",
+    "type": "craft-plugin",
+    "license": "proprietary",
+    "support": {
+        "email": "info@webdna.co.uk",
+        "issues": "https://github.com/webdna/warmie/issues?state=open",
+        "source": "https://github.com/webdna/warmie",
+        "docs": "https://github.com/webdna/warmie",
+        "rss": "https://github.com/webdna/warmie/releases.atom"
+    },
+    "require": {
+        "php": ">=8.0.2",
+        "craftcms/cms": "^4.3.6.1"
+    },
+    "autoload": {
+        "psr-4": {
+            "webdna\\warmie\\": "src/"
+        }
+    },
+    "extra": {
+        "handle": "warmie",
+        "name": "warmie",
+        "developer": "webdna",
+        "documentationUrl": "https://github.com/webdna/warmie",
+        "class": "webdna\\warmie\\Warmie"
+    },
+    "config": {
+        "sort-packages": true,
+        "platform": {
+            "php": "8.0.2"
+        },
+        "allow-plugins": {
+            "yiisoft/yii2-composer": true,
+            "craftcms/plugin-installer": true
+        }
+    }
+}
+
