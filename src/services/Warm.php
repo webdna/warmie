@@ -8,6 +8,7 @@ use craft\elements\Category;
 use craft\commerce\elements\Product;
 use craft\helpers\Console;
 use craft\helpers\ElementHelper;
+use craft\helpers\UrlHelper;
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\BadResponseException;
 use GuzzleHttp\Exception\ServerException;
@@ -50,11 +51,13 @@ class Warm extends Component
     
     public function warmUrls(array $urls)
     {
-        $client = new Client();
+        $client = new Client([
+            'base_uri' => UrlHelper::baseSiteUrl(),
+        ]);
         
         $request = function($urls) use ($client) {
             foreach ($urls as $url) {
-                yield new Request('GET', $url);
+                yield new Request('GET', $url, ['http_errors' => false]);
             }
         };
         
@@ -65,8 +68,12 @@ class Warm extends Component
                 $output = "%y$urls[$index] : ".($code == 200 ? "%g" : "%r")." $code%n";
                 Console::output(Console::renderColoredString($output));
             },
-            'rejected' => function (BadResponseException $exception, $index) use ($urls) {
-                $code = $exception->getResponse()->getStatusCode();
+            'rejected' => function ($exception, $index) use ($urls) {
+                if ($exception->getResponse()) {
+                    $code = $exception->getResponse()->getStatusCode();
+                } else {
+                    $code = 500;
+                }
                 $output = "%y$urls[$index] : %r$code%n";
                 Console::output(Console::renderColoredString($output));
             },
