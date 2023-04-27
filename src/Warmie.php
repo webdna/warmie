@@ -8,6 +8,10 @@ use craft\events\RegisterComponentTypesEvent;
 use craft\services\Utilities;
 use webdna\warmie\services\Warm;
 use webdna\warmie\utilities\Warmie as WarmieAlias;
+use yii\log\Logger;
+use craft\log\MonologTarget;
+use Monolog\Formatter\LineFormatter;
+use Psr\Log\LogLevel;
 use yii\base\Event;
 
 /**
@@ -39,6 +43,28 @@ class Warmie extends Plugin
             $this->attachEventHandlers();
             // ...
         });
+        
+        Craft::getLogger()->dispatcher->targets[] = new MonologTarget([
+            'name' => 'warmie',
+            'categories' => ['warmie'],
+            'level' => Logger::LEVEL_INFO,
+            'logContext' => false,
+            'allowLineBreaks' => false,
+            'formatter' => new LineFormatter(
+                format: "%datetime% %message%\n",
+                dateFormat: 'Y-m-d H:i:s',
+            ),
+        ]);
+    }
+    
+    public static function log(string $message): void
+    {
+        Craft::getLogger()->log($message, Logger::LEVEL_INFO, 'warmie');
+    }
+    
+    public static function error(string $message): void
+    {
+        Craft::getLogger()->log($message, Logger::LEVEL_ERROR, 'warmie');
     }
 
     private function attachEventHandlers(): void

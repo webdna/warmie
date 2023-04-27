@@ -2,6 +2,8 @@
 
 namespace webdna\warmie\services;
 
+use webdna\warmie\Warmie;
+
 use Craft;
 use craft\elements\Entry;
 use craft\elements\Category;
@@ -22,34 +24,39 @@ use yii\base\Component;
  */
 class Warm extends Component
 {
-    public function getUrls()
+    public function all()
     {
         $urls = [];
         
-        foreach (Entry::find()->collect() as $element) {
-            if ($element->url && !ElementHelper::isDraftOrRevision($element)) {
-                $urls[] = $element->url;
-            }
-        }
+        array_merge(
+            $urls, 
+            $this->entryUrls(), 
+            $this->categoryUrls(), 
+            $this->productUrls()
+        );
         
-        foreach (Category::find()->collect() as $element) {
-            if ($element->url && !ElementHelper::isDraftOrRevision($element)) {
-                $urls[] = $element->url;
-            }
-        }
-        
-        if (Craft::$app->getPlugins()->isPluginEnabled('commerce')) {
-            foreach (Product::find()->collect() as $element) {
-                if ($element->url && !ElementHelper::isDraftOrRevision($element)) {
-                    $urls[] = $element->url;
-                }
-            }
-        }
-        
-        return $urls;
+        $this->warm($urls);
     }
     
-    public function warmUrls(array $urls)
+    public function entries($section=null)
+    {
+        $this->warm($this->entryUrls($section));
+    }
+    
+    public function categories($group=null)
+    {
+        $this->warm($this->categoryUrls($group));
+    }
+    
+    public function products($type=null)
+    {
+        $this->warm($this->productUrls($type));
+    }
+    
+    
+    
+    
+    private function warm(array $urls)
     {
         $client = new Client([
             'base_uri' => UrlHelper::baseSiteUrl(),
@@ -67,6 +74,11 @@ class Warm extends Component
                 $code = $response->getStatusCode();
                 $output = "%y$urls[$index] : ".($code == 200 ? "%g" : "%r")." $code%n";
                 Console::output(Console::renderColoredString($output));
+                if ($code == 200) {
+                    Warmie::log("$urls[$index] : $code");
+                } else {
+                    Warmie::error("$urls[$index] : $code");
+                }
             },
             'rejected' => function ($exception, $index) use ($urls) {
                 if ($exception->getResponse()) {
@@ -76,10 +88,52 @@ class Warm extends Component
                 }
                 $output = "%y$urls[$index] : %r$code%n";
                 Console::output(Console::renderColoredString($output));
+                Warmie::error("$urls[$index] : $code");
             },
         ]);
         
         $promise = $pool->promise();
         $promise->wait();
+    }
+    
+    private function entryUrls($section=null)
+    {
+        $urls = [];
+        
+        foreach (Entry::find()->section($section)->collect() as $element) {
+            if ($element->url && !ElementHelper::isDraftOrRevision($element)) {
+                $urls[] = $element->url;
+            }
+        }
+        
+        return $urls;
+    }
+    
+    private function categoryUrls($group=null)
+    {
+        $urls = [];
+        
+        foreach (Category::find()->group($group)->collect() as $element) {
+            if ($element->url && !ElementHelper::isDraftOrRevision($element)) {
+                $urls[] = $element->url;
+            }
+        }
+        
+        return $urls;
+    }
+    
+    private function productUrls($type=null)
+    {
+        $urls = [];
+        
+        if (Craft::$app->getPlugins()->isPluginEnabled('commerce')) {
+            foreach (Product::find()->type($type)->collect() as $element) {
+                if ($element->url && !ElementHelper::isDraftOrRevision($element)) {
+                    $urls[] = $element->url;
+                }
+            }
+        }
+        
+        return $urls;
     }
 }
