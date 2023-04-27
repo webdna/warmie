@@ -8,6 +8,7 @@ use Craft;
 use craft\elements\Entry;
 use craft\elements\Category;
 use craft\commerce\elements\Product;
+use craft\helpers\ArrayHelper;
 use craft\helpers\Console;
 use craft\helpers\ElementHelper;
 use craft\helpers\UrlHelper;
@@ -28,7 +29,7 @@ class Warm extends Component
     {
         $urls = [];
         
-        array_merge(
+        $urls = ArrayHelper::Merge(
             $urls, 
             $this->entryUrls(), 
             $this->categoryUrls(), 
