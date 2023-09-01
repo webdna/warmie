@@ -1,0 +1,13 @@
+{% import "_includes/forms" as forms %}
+
+<h1>Warmie</h1>
+
+<form class="utility" method="post" accept-charset="UTF-8">
+	<input type="hidden" name="action" value="warmie/cache/warm">
+	
+	{{ redirectInput('utilities/warmie') }}
+	{{ csrfInput() }}
+	
+	<button type="submit" class="btn submit">Warm Cache</button>
+
+</form>

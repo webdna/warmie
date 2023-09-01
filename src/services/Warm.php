@@ -63,6 +63,9 @@ class Warm extends Component
             'base_uri' => UrlHelper::baseSiteUrl(),
         ]);
         
+        $total = count($urls);
+        $count = 1;
+        
         $request = function($urls) use ($client) {
             foreach ($urls as $url) {
                 yield new Request('GET', $url, ['http_errors' => false]);
@@ -71,25 +74,27 @@ class Warm extends Component
         
         $pool = new Pool($client, $request($urls), [
             'concurrency' => 5,
-            'fulfilled' => function (Response $response, $index) use ($urls) {
+            'fulfilled' => function (Response $response, $index) use ($urls, $total, &$count) {
                 $code = $response->getStatusCode();
-                $output = "%y$urls[$index] : ".($code == 200 ? "%g" : "%r")." $code%n";
+                $output = "%y[$count/$total] $urls[$index] : ".($code == 200 ? "%g" : "%r")." $code%n";
                 Console::output(Console::renderColoredString($output));
                 if ($code == 200) {
                     Warmie::log("$urls[$index] : $code");
                 } else {
                     Warmie::error("$urls[$index] : $code");
                 }
+                $count++;
             },
-            'rejected' => function ($exception, $index) use ($urls) {
+            'rejected' => function ($exception, $index) use ($urls, $total, &$count) {
                 if ($exception->getResponse()) {
                     $code = $exception->getResponse()->getStatusCode();
                 } else {
                     $code = 500;
                 }
-                $output = "%y$urls[$index] : %r$code%n";
+                $output = "%y[$count/$total] $urls[$index] : %r$code%n";
                 Console::output(Console::renderColoredString($output));
                 Warmie::error("$urls[$index] : $code");
+                $count++;
             },
         ]);
         

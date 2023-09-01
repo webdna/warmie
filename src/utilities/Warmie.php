@@ -23,11 +23,20 @@ class Warmie extends Utility
     public static function iconPath(): ?string
     {
         return null;
+        
+        $iconPath = Craft::getAlias('@putyourlightson/blitz/icon-mask.svg');
+        
+        if (!is_string($iconPath)) {
+            return null;
+        }
+        
+        return $iconPath;
     }
 
     static function contentHtml(): string
     {
-        // todo: replace with custom content HTML
-        return '';
+        return Craft::$app->getView()->renderTemplate('warmie/_utility', [
+            
+        ]);
     }
 }
