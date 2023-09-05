@@ -73,7 +73,7 @@ class Warm extends Component
         };
         
         $pool = new Pool($client, $request($urls), [
-            'concurrency' => 5,
+            'concurrency' => App::env('CONCURRENT_REQUESTS', 3),
             'fulfilled' => function (Response $response, $index) use ($urls, $total, &$count) {
                 $code = $response->getStatusCode();
                 $output = "%y[$count/$total] $urls[$index] : ".($code == 200 ? "%g" : "%r")." $code%n";
