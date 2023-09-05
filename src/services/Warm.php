@@ -12,6 +12,7 @@ use craft\helpers\ArrayHelper;
 use craft\helpers\Console;
 use craft\helpers\ElementHelper;
 use craft\helpers\UrlHelper;
+use craft\helpers\App;
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\BadResponseException;
 use GuzzleHttp\Exception\ServerException;
