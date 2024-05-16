@@ -24,7 +24,7 @@ class Warmie extends Utility
     {
         return null;
         
-        $iconPath = Craft::getAlias('@putyourlightson/blitz/icon-mask.svg');
+        $iconPath = Craft::getAlias('@warmie/icon-mask.svg');
         
         if (!is_string($iconPath)) {
             return null;

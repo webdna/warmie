@@ -47,7 +47,6 @@ class Warmie extends Plugin
         Craft::getLogger()->dispatcher->targets[] = new MonologTarget([
             'name' => 'warmie',
             'categories' => ['warmie'],
-            'level' => Logger::LEVEL_INFO,
             'logContext' => false,
             'allowLineBreaks' => false,
             'formatter' => new LineFormatter(
@@ -70,9 +69,12 @@ class Warmie extends Plugin
     private function attachEventHandlers(): void
     {
         // Register event handlers here ...
-        // (see https://craftcms.com/docs/4.x/extend/events.html to get started)
-        Event::on(Utilities::class, Utilities::EVENT_REGISTER_UTILITY_TYPES, function (RegisterComponentTypesEvent $event) {
-            $event->types[] = WarmieAlias::class;
-        });
+        Event::on(
+            Utilities::class, 
+            Utilities::EVENT_REGISTER_UTILITIES, 
+            function (RegisterComponentTypesEvent $event) {
+                $event->types[] = WarmieAlias::class;
+            }
+        );
     }
 }
